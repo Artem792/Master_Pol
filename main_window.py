@@ -1,3 +1,4 @@
+# main_window.py
 import sys
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidgetItem,
                              QPushButton, QVBoxLayout, QWidget, QMessageBox, QHBoxLayout,
@@ -7,6 +8,7 @@ from PyQt6.QtCore import Qt
 from database import get_db_connection
 from partner_edit_window import PartnerEditWindow
 from sales_history_window import SalesHistoryWindow
+from login_window import LoginWindow  # Добавил импорт для выхода
 
 
 class MainWindow(QMainWindow):
@@ -194,8 +196,9 @@ class MainWindow(QMainWindow):
                     self.table_partners.setItem(row_number, column_number, item)
 
                 # Расчет скидки
-                cursor.execute("SELECT SUM(quantity) FROM product_history WHERE partner_id = %s", (partner_id,))
-                total_sales = cursor.fetchone()[0] or 0
+                cursor.execute("SELECT SUM(quantity) FROM product_history WHERE partner_id = ?", (partner_id,))
+                total_sales_result = cursor.fetchone()
+                total_sales = total_sales_result[0] if total_sales_result and total_sales_result[0] is not None else 0
 
                 if total_sales < 10000:
                     discount = "0%"
@@ -225,6 +228,8 @@ class MainWindow(QMainWindow):
     def open_add_partner(self):
         self.add_window = PartnerEditWindow()
         self.add_window.show()
+        # После закрытия окна редактирования обновляем список
+        self.add_window.destroyed.connect(self.load_partners)
 
     def open_edit_partner(self):
         selected_row = self.table_partners.currentRow()
@@ -232,6 +237,8 @@ class MainWindow(QMainWindow):
             partner_id = self.table_partners.item(selected_row, 0).text()
             self.edit_window = PartnerEditWindow(partner_id=int(partner_id))
             self.edit_window.show()
+            # После закрытия окна редактирования обновляем список
+            self.edit_window.destroyed.connect(self.load_partners)
         else:
             QMessageBox.warning(self, "Внимание", "Выберите партнера для редактирования")
 
@@ -245,8 +252,6 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Внимание", "Выберите партнера для просмотра истории")
 
     def logout(self):
-        from login_window import LoginWindow
-
         reply = QMessageBox.question(self, "Выход",
                                      "Вы действительно хотите выйти из системы?",
                                      QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
