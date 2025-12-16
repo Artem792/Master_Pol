@@ -1,3 +1,4 @@
+# calculations.py
 def calculate_material(product_type_id, material_type_id, product_count, param1, param2, product_coef, defect_percent):
     """
     Расчет необходимого материала.

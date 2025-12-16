@@ -1,3 +1,4 @@
+# sales_history_window.py
 import sys
 from PyQt6.QtWidgets import (QApplication, QWidget, QTableWidget, QTableWidgetItem,
                              QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
@@ -29,7 +30,7 @@ class SalesHistoryWindow(QWidget):
         title.setFont(title_font)
         layout.addWidget(title)
 
-        # Таблица
+        # Таблица (оставляем старый стиль)
         self.table_history = QTableWidget()
         self.table_history.setColumnCount(7)
         self.table_history.setHorizontalHeaderLabels(
@@ -47,58 +48,141 @@ class SalesHistoryWindow(QWidget):
         self.table_history.setAlternatingRowColors(True)
         layout.addWidget(self.table_history)
 
-        # Форма расчета
+        # Форма расчета с улучшенными полями
         form_layout = QFormLayout()
-        form_layout.setSpacing(8)
+        form_layout.setSpacing(10)
+        form_layout.setContentsMargins(5, 5, 5, 5)
 
+        # Создаем стилизованные поля
         self.input_product_type = QLineEdit()
         self.input_product_type.setPlaceholderText("1-5")
-        self.input_product_type.setFixedWidth(80)
+        self.input_product_type.setFixedWidth(120)
+        self.input_product_type.setFixedHeight(35)
 
         self.input_material_type = QLineEdit()
         self.input_material_type.setPlaceholderText("1-5")
-        self.input_material_type.setFixedWidth(80)
+        self.input_material_type.setFixedWidth(120)
+        self.input_material_type.setFixedHeight(35)
 
         self.input_product_count = QLineEdit()
         self.input_product_count.setPlaceholderText("100")
-        self.input_product_count.setFixedWidth(80)
+        self.input_product_count.setFixedWidth(120)
+        self.input_product_count.setFixedHeight(35)
 
         self.input_param1 = QLineEdit()
         self.input_param1.setPlaceholderText("2.5")
-        self.input_param1.setFixedWidth(80)
+        self.input_param1.setFixedWidth(120)
+        self.input_param1.setFixedHeight(35)
 
         self.input_param2 = QLineEdit()
         self.input_param2.setPlaceholderText("3.0")
-        self.input_param2.setFixedWidth(80)
+        self.input_param2.setFixedWidth(120)
+        self.input_param2.setFixedHeight(35)
 
+        # Стиль для полей ввода (закругленные, жирные рамки)
+        input_style = """
+            QLineEdit {
+                padding: 8px;
+                border: 2px solid #bdc3c7;
+                border-radius: 5px;
+                font-size: 13px;
+                background-color: white;
+            }
+            QLineEdit:focus {
+                border: 2px solid #3498db;
+                background-color: #f8fdff;
+            }
+            QLineEdit:hover {
+                border: 2px solid #95a5a6;
+            }
+        """
+
+        self.input_product_type.setStyleSheet(input_style)
+        self.input_material_type.setStyleSheet(input_style)
+        self.input_product_count.setStyleSheet(input_style)
+        self.input_param1.setStyleSheet(input_style)
+        self.input_param2.setStyleSheet(input_style)
+
+        # Добавляем поля в форму
         form_layout.addRow("Тип продукции ID:", self.input_product_type)
         form_layout.addRow("Тип материала ID:", self.input_material_type)
-        form_layout.addRow("Количество:", self.input_product_count)
+        form_layout.addRow("Количество продукции:", self.input_product_count)
         form_layout.addRow("Параметр 1:", self.input_param1)
         form_layout.addRow("Параметр 2:", self.input_param2)
 
         layout.addLayout(form_layout)
 
-        # Кнопки расчета
+        # Кнопки расчета с разными цветами
         calc_layout = QHBoxLayout()
-        calc_layout.setSpacing(10)
+        calc_layout.setSpacing(15)
 
-        self.button_calc = QPushButton("Рассчитать материал")
-        self.button_calc.setFixedHeight(35)
+        self.button_calc = QPushButton("🧮 Рассчитать материал")
+        self.button_calc.setFixedHeight(40)
+        self.button_calc.setFixedWidth(180)
+        self.button_calc.setStyleSheet("""
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-weight: bold;
+                font-size: 13px;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+            QPushButton:pressed {
+                background-color: #1c6ea4;
+            }
+        """)
         self.button_calc.clicked.connect(self.calculate_material_full)
         calc_layout.addWidget(self.button_calc)
 
         self.label_result = QLabel("Результат: -")
+        self.label_result.setStyleSheet("""
+            QLabel {
+                font-weight: bold;
+                font-size: 13px;
+                color: #2c3e50;
+                padding: 8px 15px;
+                background-color: #ecf0f1;
+                border-radius: 5px;
+                border: 1px solid #bdc3c7;
+            }
+        """)
         calc_layout.addWidget(self.label_result)
         calc_layout.addStretch()
 
         layout.addLayout(calc_layout)
 
-        # Кнопка закрытия
-        self.button_close = QPushButton("Закрыть")
-        self.button_close.setFixedHeight(35)
+        # Кнопка закрытия с другим цветом
+        close_layout = QHBoxLayout()
+        close_layout.addStretch()
+
+        self.button_close = QPushButton("✕ Закрыть окно")
+        self.button_close.setFixedHeight(40)
+        self.button_close.setFixedWidth(150)
+        self.button_close.setStyleSheet("""
+            QPushButton {
+                background-color: #95a5a6;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-weight: bold;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #7f8c8d;
+            }
+            QPushButton:pressed {
+                background-color: #6c7b7d;
+            }
+        """)
         self.button_close.clicked.connect(self.close)
-        layout.addWidget(self.button_close)
+        close_layout.addWidget(self.button_close)
+        close_layout.addStretch()
+
+        layout.addLayout(close_layout)
 
         self.setLayout(layout)
 
@@ -114,7 +198,7 @@ class SalesHistoryWindow(QWidget):
                 SELECT ph.id, p.name, ph.quantity, ph.sale_date, ph.param1, ph.param2
                 FROM product_history ph
                 JOIN products p ON ph.product_id = p.id
-                WHERE ph.partner_id = %s 
+                WHERE ph.partner_id = ? 
                 ORDER BY ph.sale_date DESC
             """, (self.partner_id,))
 
@@ -163,7 +247,7 @@ class SalesHistoryWindow(QWidget):
 
             cursor = connection.cursor()
 
-            cursor.execute("SELECT coefficient FROM product_types WHERE id = %s", (product_type_id,))
+            cursor.execute("SELECT coefficient FROM product_types WHERE id = ?", (product_type_id,))
             product_coef_result = cursor.fetchone()
             if not product_coef_result:
                 QMessageBox.warning(self, "Ошибка", "Тип продукции не найден")
@@ -173,7 +257,7 @@ class SalesHistoryWindow(QWidget):
 
             product_coef = float(product_coef_result[0])
 
-            cursor.execute("SELECT defect_percent FROM material_types WHERE id = %s", (material_type_id,))
+            cursor.execute("SELECT defect_percent FROM material_types WHERE id = ?", (material_type_id,))
             material_defect_result = cursor.fetchone()
             if not material_defect_result:
                 QMessageBox.warning(self, "Ошибка", "Тип материала не найден")
@@ -197,10 +281,32 @@ class SalesHistoryWindow(QWidget):
             )
 
             if result == -1:
-                self.label_result.setText("Ошибка расчета")
+                self.label_result.setText("❌ Ошибка расчета")
+                self.label_result.setStyleSheet("""
+                    QLabel {
+                        font-weight: bold;
+                        font-size: 13px;
+                        color: #e74c3c;
+                        padding: 8px 15px;
+                        background-color: #fadbd8;
+                        border-radius: 5px;
+                        border: 1px solid #f5b7b1;
+                    }
+                """)
                 QMessageBox.warning(self, "Ошибка", "Проверьте введенные данные")
             else:
-                self.label_result.setText(f"Необходимо материала: {result} ед.")
+                self.label_result.setText(f"✅ Необходимо материала: {result} ед.")
+                self.label_result.setStyleSheet("""
+                    QLabel {
+                        font-weight: bold;
+                        font-size: 13px;
+                        color: #27ae60;
+                        padding: 8px 15px;
+                        background-color: #d5f4e6;
+                        border-radius: 5px;
+                        border: 1px solid #a3e4d7;
+                    }
+                """)
 
         except ValueError:
             QMessageBox.warning(self, "Ошибка", "Введите корректные числа")

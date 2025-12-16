@@ -1,3 +1,4 @@
+# main.py
 import sys
 import json
 import os
@@ -52,7 +53,7 @@ def check_authentication():
         if connection:
             try:
                 cursor = connection.cursor()
-                cursor.execute("SELECT id FROM managers WHERE login = %s", (user_id,))
+                cursor.execute("SELECT id FROM managers WHERE login = ?", (user_id,))
                 user_exists = cursor.fetchone()
                 cursor.close()
                 connection.close()
@@ -64,38 +65,6 @@ def check_authentication():
                 pass
 
     return False
-
-
-def check_existing_managers():
-    """Проверяет, есть ли менеджеры в БД"""
-    from database import get_db_connection
-    connection = get_db_connection()
-    if not connection:
-        print("Ошибка: нет подключения к БД")
-        return False
-
-    try:
-        cursor = connection.cursor()
-        cursor.execute("SHOW TABLES LIKE 'managers'")
-        table_exists = cursor.fetchone()
-
-        if not table_exists:
-            print("Таблица 'managers' не найдена")
-            cursor.close()
-            connection.close()
-            return False
-
-        cursor.execute("SELECT COUNT(*) FROM managers")
-        count = cursor.fetchone()[0]
-        cursor.close()
-        connection.close()
-
-        print(f"Менеджеров в БД: {count}")
-        return count > 0
-
-    except Exception as e:
-        print(f"Ошибка: {e}")
-        return False
 
 
 def main():
