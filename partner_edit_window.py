@@ -1,11 +1,8 @@
-# partner_edit_window.py
 import sys
-from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QPushButton,
-                             QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QFrame)
+from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QPushButton,QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QFrame)
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from database import get_db_connection
-
 
 class PartnerEditWindow(QWidget):
     def __init__(self, partner_id=None):
@@ -27,7 +24,6 @@ class PartnerEditWindow(QWidget):
         main_layout.setContentsMargins(30, 25, 30, 25)
         main_layout.setSpacing(20)
 
-        # Заголовок
         title = QLabel("Данные партнера")
         title_font = QFont()
         title_font.setBold(True)
@@ -37,7 +33,6 @@ class PartnerEditWindow(QWidget):
         title.setStyleSheet("color: #2c3e50; margin-bottom: 10px;")
         main_layout.addWidget(title)
 
-        # Карточка формы
         form_frame = QFrame()
         form_frame.setFrameShape(QFrame.Shape.StyledPanel)
         form_frame.setStyleSheet("""
@@ -52,7 +47,6 @@ class PartnerEditWindow(QWidget):
         form_layout.setContentsMargins(15, 15, 15, 15)
         form_layout.setSpacing(15)
 
-        # Стиль для меток
         label_style = """
             QLabel {
                 font-weight: bold;
@@ -62,7 +56,6 @@ class PartnerEditWindow(QWidget):
             }
         """
 
-        # Поля формы
         self.input_name = QLineEdit()
         self.input_name.setPlaceholderText("Введите название партнера")
         self.input_name.setFixedHeight(36)
@@ -117,7 +110,6 @@ class PartnerEditWindow(QWidget):
         self.input_email.setPlaceholderText("example@mail.ru")
         self.input_email.setFixedHeight(36)
 
-        # Общий стиль для полей ввода
         input_style = """
             QLineEdit {
                 padding: 8px;
@@ -142,7 +134,6 @@ class PartnerEditWindow(QWidget):
         self.input_phone.setStyleSheet(input_style)
         self.input_email.setStyleSheet(input_style)
 
-        # Добавление полей в правильном порядке
         fields = [
             ("Название *", self.input_name),
             ("Тип партнера", self.input_type),
@@ -163,11 +154,10 @@ class PartnerEditWindow(QWidget):
         form_frame.setLayout(form_layout)
         main_layout.addWidget(form_frame)
 
-        # Кнопки
         button_layout = QHBoxLayout()
         button_layout.setSpacing(20)
 
-        self.button_save = QPushButton("💾 Сохранить")
+        self.button_save = QPushButton("Сохранить")
         self.button_save.setFixedHeight(42)
         self.button_save.setStyleSheet("""
             QPushButton {
@@ -192,7 +182,7 @@ class PartnerEditWindow(QWidget):
         self.button_save.clicked.connect(self.save_partner)
         button_layout.addWidget(self.button_save)
 
-        self.button_cancel = QPushButton("❌ Отмена")
+        self.button_cancel = QPushButton("Отмена")
         self.button_cancel.setFixedHeight(42)
         self.button_cancel.setStyleSheet("""
             QPushButton {
@@ -231,11 +221,9 @@ class PartnerEditWindow(QWidget):
             connection.close()
 
             if partner:
-                # Используем индексы для доступа к данным
                 columns = ['id', 'name', 'type', 'rating', 'address',
                            'director_name', 'phone', 'email', 'created_at', 'updated_at']
 
-                # Преобразуем в словарь для удобства
                 partner_dict = {}
                 for i, col in enumerate(columns):
                     if i < len(partner):
@@ -243,7 +231,6 @@ class PartnerEditWindow(QWidget):
                     else:
                         partner_dict[col] = ''
 
-                # Заполняем поля
                 self.input_name.setText(str(partner_dict.get('name', '')))
 
                 type_text = str(partner_dict.get('type', ''))
@@ -298,13 +285,13 @@ class PartnerEditWindow(QWidget):
                     SET name=?, type=?, rating=?, address=?, director_name=?, phone=?, email=? 
                     WHERE id=?
                 """, (name, p_type, rating_int, address, director, phone, email, self.partner_id))
-                message = "✅ Данные партнера обновлены"
+                message = "Данные партнера обновлены"
             else:
                 cursor.execute("""
                     INSERT INTO partners (name, type, rating, address, director_name, phone, email) 
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 """, (name, p_type, rating_int, address, director, phone, email))
-                message = "✅ Новый партнер добавлен"
+                message = "Новый партнер добавлен"
 
             connection.commit()
             cursor.close()

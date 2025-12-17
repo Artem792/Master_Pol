@@ -1,25 +1,17 @@
-# database.py
 import sqlite3
 from sqlite3 import Error
 import os
+from datetime import date, timedelta
+import hashlib
 
 
 def get_db_connection():
-    """Создание подключения к SQLite базе данных"""
     try:
-        # База данных будет в файле в той же директории
         db_path = "master_pol_db.sqlite"
-
-        # Создаем подключение
         connection = sqlite3.connect(db_path)
-        connection.row_factory = sqlite3.Row  # Для доступа к столбцам по имени
-
-        # Включаем поддержку внешних ключей
+        connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
-
-        # Создаем таблицы, если их нет
         create_tables(connection)
-
         return connection
     except Error as e:
         print(f"Ошибка подключения к БД SQLite: {e}")
@@ -27,10 +19,8 @@ def get_db_connection():
 
 
 def create_tables(connection):
-    """Создание всех необходимых таблиц"""
     cursor = connection.cursor()
 
-    # Таблица менеджеров
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS managers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,7 +30,6 @@ def create_tables(connection):
         )
     ''')
 
-    # Таблица партнеров
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS partners (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +45,6 @@ def create_tables(connection):
         )
     ''')
 
-    # Таблица типов продукции
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS product_types (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,7 +53,6 @@ def create_tables(connection):
         )
     ''')
 
-    # Таблица типов материалов
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS material_types (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,7 +61,6 @@ def create_tables(connection):
         )
     ''')
 
-    # Таблица продуктов
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -86,7 +72,6 @@ def create_tables(connection):
         )
     ''')
 
-    # Таблица истории продаж
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS product_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -102,7 +87,6 @@ def create_tables(connection):
         )
     ''')
 
-    # Триггер для обновления updated_at в partners
     cursor.execute('''
         CREATE TRIGGER IF NOT EXISTS update_partners_timestamp 
         AFTER UPDATE ON partners
@@ -111,21 +95,15 @@ def create_tables(connection):
         END
     ''')
 
-    # Создаем тестовые данные, если таблицы пустые
     initialize_test_data(connection)
-
     connection.commit()
 
 
 def initialize_test_data(connection):
-    """Инициализация тестовых данных при первом запуске"""
     cursor = connection.cursor()
-    import hashlib
 
-    # Проверяем, есть ли менеджеры
     cursor.execute("SELECT COUNT(*) FROM managers")
     if cursor.fetchone()[0] == 0:
-        # Создаем администратора
         password_hash = hashlib.sha256("admin".encode()).hexdigest()
         cursor.execute(
             "INSERT INTO managers (login, password_hash) VALUES (?, ?)",
@@ -133,7 +111,6 @@ def initialize_test_data(connection):
         )
         print("Создан администратор: логин=admin, пароль=admin")
 
-    # Проверяем, есть ли типы продукции
     cursor.execute("SELECT COUNT(*) FROM product_types")
     if cursor.fetchone()[0] == 0:
         product_types = [
@@ -149,7 +126,6 @@ def initialize_test_data(connection):
                 (name, coeff)
             )
 
-    # Проверяем, есть ли типы материалов
     cursor.execute("SELECT COUNT(*) FROM material_types")
     if cursor.fetchone()[0] == 0:
         material_types = [
@@ -165,7 +141,6 @@ def initialize_test_data(connection):
                 (name, defect)
             )
 
-    # Проверяем, есть ли продукты
     cursor.execute("SELECT COUNT(*) FROM products")
     if cursor.fetchone()[0] == 0:
         products = [
@@ -181,7 +156,6 @@ def initialize_test_data(connection):
                 (name, p_type, m_type)
             )
 
-    # Проверяем, есть ли партнеры
     cursor.execute("SELECT COUNT(*) FROM partners")
     if cursor.fetchone()[0] == 0:
         partners = [
@@ -191,33 +165,26 @@ def initialize_test_data(connection):
              "petrov@mail.ru"),
             ("ЗАО 'СтройМаш'", "Подрядчик", 9, "г. Екатеринбург, ул. Машиностроителей, 25", "Сидоров С.С.",
              "+7(343)345-67-89", "stroymash@yandex.ru"),
-            (
-            "АО 'ТоргСервис'", "Дистрибьютор", 7, "г. Новосибирск, ул. Ленина, 50", "Кузнецов К.К.", "+7(383)456-78-90",
-            "torgserv@gmail.com"),
+            ("АО 'ТоргСервис'", "Дистрибьютор", 7, "г. Новосибирск, ул. Ленина, 50", "Кузнецов К.К.", "+7(383)456-78-90",
+             "torgserv@gmail.com"),
             ("ООО 'ПромСнаб'", "Поставщик", 5, "г. Казань, ул. Баумана, 30", "Алексеев А.А.", "+7(843)567-89-01",
              "promsnab@mail.ru")
         ]
         for name, p_type, rating, address, director, phone, email in partners:
             cursor.execute(
-                """INSERT INTO partners (name, type, rating, address, director_name, phone, email) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                "INSERT INTO partners (name, type, rating, address, director_name, phone, email) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 (name, p_type, rating, address, director, phone, email)
             )
 
-    # Проверяем, есть ли история продаж
     cursor.execute("SELECT COUNT(*) FROM product_history")
     if cursor.fetchone()[0] == 0:
-        from datetime import date, timedelta
         today = date.today()
 
-        # Создаем тестовые продажи
         for i in range(1, 6):
             for j in range(1, 4):
                 sale_date = today - timedelta(days=j * 30)
                 cursor.execute(
-                    """INSERT INTO product_history 
-                       (partner_id, product_id, quantity, sale_date, param1, param2) 
-                       VALUES (?, ?, ?, ?, ?, ?)""",
+                    "INSERT INTO product_history (partner_id, product_id, quantity, sale_date, param1, param2) VALUES (?, ?, ?, ?, ?, ?)",
                     (i, j, i * 100, sale_date.isoformat(), 1.0 + i * 0.2, 1.0 + j * 0.1)
                 )
 

@@ -1,13 +1,9 @@
-# sales_history_window.py
 import sys
-from PyQt6.QtWidgets import (QApplication, QWidget, QTableWidget, QTableWidgetItem,
-                             QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
-                             QMessageBox, QFormLayout, QHeaderView)
+from PyQt6.QtWidgets import (QApplication, QWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QFormLayout, QHeaderView)
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from database import get_db_connection
 from calculations import calculate_material
-
 
 class SalesHistoryWindow(QWidget):
     def __init__(self, partner_id):
@@ -23,18 +19,15 @@ class SalesHistoryWindow(QWidget):
         layout.setContentsMargins(15, 15, 15, 15)
         layout.setSpacing(15)
 
-        # Заголовок
         title = QLabel(f"История продаж партнера ID: {self.partner_id}")
         title_font = QFont()
         title_font.setBold(True)
         title.setFont(title_font)
         layout.addWidget(title)
 
-        # Таблица (оставляем старый стиль)
         self.table_history = QTableWidget()
         self.table_history.setColumnCount(7)
-        self.table_history.setHorizontalHeaderLabels(
-            ["ID", "Продукция", "Кол-во", "Дата", "Пар.1", "Пар.2", "Материал"])
+        self.table_history.setHorizontalHeaderLabels(["ID", "Продукция", "Кол-во", "Дата", "Пар.1", "Пар.2", "Материал"])
 
         header = self.table_history.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
@@ -48,12 +41,10 @@ class SalesHistoryWindow(QWidget):
         self.table_history.setAlternatingRowColors(True)
         layout.addWidget(self.table_history)
 
-        # Форма расчета с улучшенными полями
         form_layout = QFormLayout()
         form_layout.setSpacing(10)
         form_layout.setContentsMargins(5, 5, 5, 5)
 
-        # Создаем стилизованные поля
         self.input_product_type = QLineEdit()
         self.input_product_type.setPlaceholderText("1-5")
         self.input_product_type.setFixedWidth(120)
@@ -79,7 +70,6 @@ class SalesHistoryWindow(QWidget):
         self.input_param2.setFixedWidth(120)
         self.input_param2.setFixedHeight(35)
 
-        # Стиль для полей ввода (закругленные, жирные рамки)
         input_style = """
             QLineEdit {
                 padding: 8px;
@@ -103,7 +93,6 @@ class SalesHistoryWindow(QWidget):
         self.input_param1.setStyleSheet(input_style)
         self.input_param2.setStyleSheet(input_style)
 
-        # Добавляем поля в форму
         form_layout.addRow("Тип продукции ID:", self.input_product_type)
         form_layout.addRow("Тип материала ID:", self.input_material_type)
         form_layout.addRow("Количество продукции:", self.input_product_count)
@@ -112,11 +101,10 @@ class SalesHistoryWindow(QWidget):
 
         layout.addLayout(form_layout)
 
-        # Кнопки расчета с разными цветами
         calc_layout = QHBoxLayout()
         calc_layout.setSpacing(15)
 
-        self.button_calc = QPushButton("🧮 Рассчитать материал")
+        self.button_calc = QPushButton("Рассчитать материал")
         self.button_calc.setFixedHeight(40)
         self.button_calc.setFixedWidth(180)
         self.button_calc.setStyleSheet("""
@@ -155,7 +143,6 @@ class SalesHistoryWindow(QWidget):
 
         layout.addLayout(calc_layout)
 
-        # Кнопка закрытия с другим цветом
         close_layout = QHBoxLayout()
         close_layout.addStretch()
 
@@ -208,11 +195,10 @@ class SalesHistoryWindow(QWidget):
             for row_number, record in enumerate(history):
                 for column_number, data in enumerate(record):
                     item = QTableWidgetItem(str(data))
-                    if column_number in [2, 4, 5]:  # Числовые колонки
+                    if column_number in [2, 4, 5]:
                         item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                     self.table_history.setItem(row_number, column_number, item)
 
-                # Расчет материала
                 material_needed = calculate_material(
                     product_type_id=1,
                     material_type_id=1,
@@ -281,7 +267,7 @@ class SalesHistoryWindow(QWidget):
             )
 
             if result == -1:
-                self.label_result.setText("❌ Ошибка расчета")
+                self.label_result.setText("Ошибка расчета")
                 self.label_result.setStyleSheet("""
                     QLabel {
                         font-weight: bold;
@@ -295,7 +281,7 @@ class SalesHistoryWindow(QWidget):
                 """)
                 QMessageBox.warning(self, "Ошибка", "Проверьте введенные данные")
             else:
-                self.label_result.setText(f"✅ Необходимо материала: {result} ед.")
+                self.label_result.setText(f"Необходимо материала: {result} ед.")
                 self.label_result.setStyleSheet("""
                     QLabel {
                         font-weight: bold;

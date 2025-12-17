@@ -1,4 +1,3 @@
-# main.py
 import sys
 import json
 import os
@@ -7,8 +6,6 @@ from PyQt6.QtCore import QSettings
 
 
 def save_login_state(username, logged_in=True):
-    """Сохраняет состояние авторизации"""
-    # Способ 1: QSettings (рекомендуется)
     settings = QSettings("PartnerSystem", "App")
     settings.setValue("logged_in", logged_in)
     if logged_in:
@@ -16,7 +13,6 @@ def save_login_state(username, logged_in=True):
     else:
         settings.setValue("user_id", "")
 
-    # Способ 2: JSON файл (альтернатива)
     config = {
         "logged_in": logged_in,
         "user_id": username if logged_in else ""
@@ -29,13 +25,10 @@ def save_login_state(username, logged_in=True):
 
 
 def check_authentication():
-    """Проверяет, есть ли сохраненная авторизация"""
-    # Используем QSettings для сохранения состояния
     settings = QSettings("PartnerSystem", "App")
     is_logged_in = settings.value("logged_in", False, type=bool)
     user_id = settings.value("user_id", "", type=str)
 
-    # Альтернативно можно использовать простой файл
     config_file = "config.json"
     if os.path.exists(config_file):
         try:
@@ -46,7 +39,6 @@ def check_authentication():
         except:
             is_logged_in = False
 
-    # Проверяем подключение к БД и существование пользователя
     if is_logged_in and user_id:
         from database import get_db_connection
         connection = get_db_connection()
@@ -70,16 +62,15 @@ def check_authentication():
 def main():
     app = QApplication(sys.argv)
 
-    # Проверяем сохраненную авторизацию
     if check_authentication():
         print("Запуск главного окна (автоматический вход)...")
         from main_window import MainWindow
-        window = MainWindow(save_login_state)  # Передаем функцию
+        window = MainWindow(save_login_state)
         window.show()
     else:
         print("Запуск окна авторизации...")
         from login_window import LoginWindow
-        window = LoginWindow(save_login_state)  # Передаем функцию
+        window = LoginWindow(save_login_state)
         window.show()
 
     sys.exit(app.exec())

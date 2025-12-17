@@ -1,9 +1,6 @@
-# login_window.py
 import sys
 import hashlib
-from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QPushButton,
-                             QVBoxLayout, QMessageBox, QHBoxLayout, QFrame, QSpacerItem,
-                             QSizePolicy)
+from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QHBoxLayout, QFrame, QSpacerItem, QSizePolicy)
 from PyQt6.QtGui import QIcon, QFont
 from PyQt6.QtCore import Qt
 from database import get_db_connection
@@ -28,7 +25,6 @@ class LoginWindow(QWidget):
         main_layout.setContentsMargins(30, 15, 30, 15)
         main_layout.setSpacing(10)
 
-        # Заголовок
         title = QLabel("Вход в систему")
         title_font = QFont()
         title_font.setBold(True)
@@ -38,7 +34,6 @@ class LoginWindow(QWidget):
         title.setStyleSheet("color: #2c3e50; margin-bottom: 5px;")
         main_layout.addWidget(title)
 
-        # Карточка формы
         form_frame = QFrame()
         form_frame.setFrameShape(QFrame.Shape.StyledPanel)
         form_frame.setStyleSheet("""
@@ -54,11 +49,9 @@ class LoginWindow(QWidget):
         form_layout.setContentsMargins(15, 15, 15, 15)
         form_layout.setSpacing(5)
 
-        # Добавляем верхний спейсер для центрирования
         top_spacer = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         form_layout.addItem(top_spacer)
 
-        # Поля ввода
         self.input_login = QLineEdit()
         self.input_login.setPlaceholderText("Введите ваш логин")
         self.input_login.setFixedHeight(46)
@@ -67,7 +60,7 @@ class LoginWindow(QWidget):
                 padding: 10px;
                 border: 2px solid #bdc3c7;
                 border-radius: 5px;
-                font-size: 13px;  /* УМЕНЬШИЛ шрифт с 14px до 13px */
+                font-size: 13px;
                 background-color: white;
                 margin-top: 2px;
                 margin-bottom: 8px;
@@ -90,7 +83,7 @@ class LoginWindow(QWidget):
                 padding: 10px;
                 border: 2px solid #bdc3c7;
                 border-radius: 5px;
-                font-size: 13px;  /* УМЕНЬШИЛ шрифт с 14px до 13px */
+                font-size: 13px;
                 background-color: white;
                 margin-top: 2px;
                 margin-bottom: 8px;
@@ -104,11 +97,9 @@ class LoginWindow(QWidget):
             }
         """)
 
-        # Добавляем элементы
         form_layout.addWidget(self.input_login)
         form_layout.addWidget(self.input_password)
 
-        # Добавляем нижний спейсер для центрирования
         bottom_spacer = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         form_layout.addItem(bottom_spacer)
 
@@ -116,7 +107,6 @@ class LoginWindow(QWidget):
         main_layout.addWidget(form_frame)
         main_layout.addSpacing(10)
 
-        # Кнопки
         button_layout = QHBoxLayout()
         button_layout.setContentsMargins(0, 0, 0, 0)
         button_layout.setSpacing(15)
@@ -130,7 +120,7 @@ class LoginWindow(QWidget):
                 border: none;
                 border-radius: 5px;
                 font-weight: bold;
-                font-size: 13px;  /* Уменьшил шрифт в кнопках для единообразия */
+                font-size: 13px;
                 padding: 0px;
             }
             QPushButton:hover {
@@ -156,7 +146,7 @@ class LoginWindow(QWidget):
                 border: none;
                 border-radius: 5px;
                 font-weight: bold;
-                font-size: 13px;  /* Уменьшил шрифт в кнопках для единообразия */
+                font-size: 13px;
                 padding: 0px;
             }
             QPushButton:hover {
@@ -201,12 +191,10 @@ class LoginWindow(QWidget):
             connection.close()
 
             if result:
-                # Если есть функция сохранения - вызываем ее
                 if self.save_login:
                     self.save_login(login, True)
 
                 self.close()
-                # Импортируем MainWindow только когда он нужен
                 from main_window import MainWindow
                 self.main_window = MainWindow(self.save_login)
                 self.main_window.show()

@@ -1,14 +1,11 @@
-# main_window.py
 import sys
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidgetItem,
-                             QPushButton, QVBoxLayout, QWidget, QMessageBox, QHBoxLayout,
-                             QHeaderView, QLabel, QFrame)
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, QVBoxLayout, QWidget, QMessageBox, QHBoxLayout, QHeaderView, QLabel, QFrame)
 from PyQt6.QtGui import QIcon, QFont, QColor
 from PyQt6.QtCore import Qt
 from database import get_db_connection
 from partner_edit_window import PartnerEditWindow
 from sales_history_window import SalesHistoryWindow
-from login_window import LoginWindow  # Добавил импорт для выхода
+from login_window import LoginWindow
 
 
 class MainWindow(QMainWindow):
@@ -25,7 +22,6 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(15)
 
-        # Заголовок
         header_frame = QFrame()
         header_frame.setStyleSheet("""
             QFrame {
@@ -36,7 +32,7 @@ class MainWindow(QMainWindow):
         """)
 
         header_layout = QHBoxLayout()
-        title = QLabel("📋 Список партнеров")
+        title = QLabel("Список партнеров")
         title_font = QFont()
         title_font.setBold(True)
         title_font.setPointSize(16)
@@ -45,7 +41,7 @@ class MainWindow(QMainWindow):
         header_layout.addWidget(title)
         header_layout.addStretch()
 
-        self.button_refresh = QPushButton("🔄 Обновить")
+        self.button_refresh = QPushButton("Обновить")
         self.button_refresh.setFixedWidth(120)
         self.button_refresh.setStyleSheet("""
             QPushButton {
@@ -66,12 +62,10 @@ class MainWindow(QMainWindow):
         header_frame.setLayout(header_layout)
         main_layout.addWidget(header_frame)
 
-        # Таблица
         self.table_partners = QTableWidget()
         self.table_partners.setColumnCount(6)
         self.table_partners.setHorizontalHeaderLabels(["ID", "Название", "Тип", "Рейтинг", "Телефон", "Скидка"])
 
-        # Стиль таблицы
         self.table_partners.setStyleSheet("""
             QTableWidget {
                 gridline-color: #ddd;
@@ -100,7 +94,6 @@ class MainWindow(QMainWindow):
         self.table_partners.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         main_layout.addWidget(self.table_partners)
 
-        # Панель действий
         action_frame = QFrame()
         action_frame.setStyleSheet("""
             QFrame {
@@ -114,10 +107,10 @@ class MainWindow(QMainWindow):
         action_layout.setSpacing(15)
 
         buttons = [
-            ("➕ Добавить", self.open_add_partner, "#2ecc71"),
-            ("✏️ Редактировать", self.open_edit_partner, "#3498db"),
-            ("📊 История продаж", self.open_sales_history, "#e67e22"),
-            ("🚪 Выйти", self.logout, "#e74c3c")
+            ("Добавить", self.open_add_partner, "#2ecc71"),
+            ("Редактировать", self.open_edit_partner, "#3498db"),
+            ("История продаж", self.open_sales_history, "#e67e22"),
+            ("Выйти", self.logout, "#e74c3c")
         ]
 
         for text, handler, color in buttons:
@@ -150,7 +143,6 @@ class MainWindow(QMainWindow):
         self.load_partners()
 
     def _darken_color(self, hex_color):
-        # Простое затемнение цвета
         colors = {
             "#2ecc71": "#27ae60",
             "#3498db": "#2980b9",
@@ -181,7 +173,7 @@ class MainWindow(QMainWindow):
 
                 for column_number, data in enumerate(partner):
                     item = QTableWidgetItem(str(data))
-                    if column_number == 3:  # Рейтинг
+                    if column_number == 3:
                         item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                         rating = int(data) if data else 0
                         if rating >= 8:
@@ -195,7 +187,6 @@ class MainWindow(QMainWindow):
                             item.setForeground(QColor(192, 57, 43))
                     self.table_partners.setItem(row_number, column_number, item)
 
-                # Расчет скидки
                 cursor.execute("SELECT SUM(quantity) FROM product_history WHERE partner_id = ?", (partner_id,))
                 total_sales_result = cursor.fetchone()
                 total_sales = total_sales_result[0] if total_sales_result and total_sales_result[0] is not None else 0
@@ -228,7 +219,6 @@ class MainWindow(QMainWindow):
     def open_add_partner(self):
         self.add_window = PartnerEditWindow()
         self.add_window.show()
-        # После закрытия окна редактирования обновляем список
         self.add_window.destroyed.connect(self.load_partners)
 
     def open_edit_partner(self):
@@ -237,7 +227,6 @@ class MainWindow(QMainWindow):
             partner_id = self.table_partners.item(selected_row, 0).text()
             self.edit_window = PartnerEditWindow(partner_id=int(partner_id))
             self.edit_window.show()
-            # После закрытия окна редактирования обновляем список
             self.edit_window.destroyed.connect(self.load_partners)
         else:
             QMessageBox.warning(self, "Внимание", "Выберите партнера для редактирования")
@@ -252,14 +241,10 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Внимание", "Выберите партнера для просмотра истории")
 
     def logout(self):
-        reply = QMessageBox.question(self, "Выход",
-                                     "Вы действительно хотите выйти из системы?",
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        reply = QMessageBox.question(self, "Выход","Вы действительно хотите выйти из системы?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if reply == QMessageBox.StandardButton.Yes:
-            # Сбрасываем сохраненную авторизацию
             self.save_login("", False)
-
             self.close()
             self.login_window = LoginWindow(self.save_login)
             self.login_window.show()
